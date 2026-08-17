@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import sharp from 'sharp';
 
 /**
  * Extraction response JSON schema definition for Gemini.
@@ -51,6 +52,21 @@ const dentalFormSchema = {
 };
 
 /**
+ * Helper to enhance image contrast and sharpness for raw handwriting OCR.
+ */
+async function preprocessImage(imageBuffer) {
+  try {
+    return await sharp(imageBuffer)
+      .normalize() // Boost contrast between paper background and pen ink
+      .sharpen({ sigma: 1.5 }) // Sharpen handwriting stroke edges
+      .toBuffer();
+  } catch (err) {
+    console.warn('[Image Preprocessing Warning] Falling back to raw buffer:', err.message);
+    return imageBuffer;
+  }
+}
+
+/**
  * Service to process dental lab form images using Google Gemini AI.
  * 
  * @param {Buffer} imageBuffer - Raw image buffer
@@ -66,8 +82,24 @@ export async function extractDentalForm(imageBuffer, mimeType = 'image/jpeg') {
   const ai = new GoogleGenAI({ apiKey });
   const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-  const prompt = `You are a strict raw Optical Character Recognition (OCR) transcription engine.
+  // Pre-process image buffer to enhance contrast of handwriting strokes
+  const processedBuffer = await preprocessImage(imageBuffer);
+
+  const prompt = `You are a strict raw Optical Character Recognition (OCR) transcription engine specializing in dental lab forms and Khmer handwriting.
 Your task is to visually transcribe the exact text from the provided dental lab form image into JSON.
+
+KHMER DENTAL TERMINOLOGY DICTIONARY & CONTEXT:
+Use the following dictionary of common Khmer dental terminology to recognize cursive and handwritten glyphs accurately:
+- ធ្វើដាច់ៗពីគ្នា (Separated crowns / make individually)
+- ចាក់ពុម្ព (Pour mold / impression / casting model)
+- រើស Abutment ខ្លួនឯង (Select Abutment manually)
+- ដាក់ (Place / put)
+- ផ្លាស់ប្ដូរ (Change / Replace)
+- ដាច់ (Disconnected / separate)
+- ពុម្ព (Mold / model)
+- ប្រព័ន្ធ (System)
+- គ្រាប់ធ្មេញ (Crown / tooth unit)
+- ករណី / Case (Case order)
 
 STRICT RAW TRANSCRIPTION RULES (CRITICAL):
 1. DO NOT optimize, sanitize, fix grammar, smooth, summarize, or modify any extracted text.
@@ -84,11 +116,11 @@ FIELD GUIDELINES:
 - \`createdDate\`: Date in YYYY-MM-DD format.
 - \`dueDate\`: Date in YYYY-MM-DD format.
 - \`requirements\`: RAW EXACT text from "Other requirements:" section (e.g. "implant Osstem (#34Standard) (#35Mini)").
-- \`notes\`: RAW EXACT text from "Other notes:". Transcribe exact raw characters from the image without post-processing.
+- \`notes\`: RAW EXACT 1:1 literal visual transcription of handwritten notes. Transcribe exact raw characters from the image without post-processing.
 
 Return valid JSON adhering strictly to the response schema.`;
 
-  const base64Data = imageBuffer.toString('base64');
+  const base64Data = processedBuffer.toString('base64');
 
   const response = await ai.models.generateContent({
     model: modelName,
