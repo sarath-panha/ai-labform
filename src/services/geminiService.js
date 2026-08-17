@@ -84,7 +84,7 @@ FIELD GUIDELINES:
 - \`createdDate\`: Date in YYYY-MM-DD format.
 - \`dueDate\`: Date in YYYY-MM-DD format.
 - \`requirements\`: RAW EXACT text from "Other requirements:" section (e.g. "implant Osstem (#34Standard) (#35Mini)").
-- \`notes\`: RAW EXACT 1:1 literal visual transcription of handwritten notes. Transcribe exact raw characters from the image without post-processing.
+- \`notes\`: RAW EXACT text from "Other notes:". Transcribe exact raw characters from the image without post-processing.
 
 Return valid JSON adhering strictly to the response schema.`;
 
