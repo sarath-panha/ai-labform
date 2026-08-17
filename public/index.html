@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dental Lab Form AI Extractor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-heading: #f0f6fc;
+      --accent: #2f81f7;
+      --accent-hover: #58a6ff;
+      --success: #238636;
+      --success-bg: rgba(35, 134, 54, 0.15);
+      --warning: #d29922;
+      --warning-bg: rgba(210, 153, 34, 0.15);
+      --error: #f85149;
+      --error-bg: rgba(248, 81, 73, 0.15);
+      --code-bg: #0d1117;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 16px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(47, 129, 247, 0.2);
+      color: var(--accent-hover);
+      border: 1px solid rgba(47, 129, 247, 0.3);
+      font-weight: 500;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-heading);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 32px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .dropzone:hover, .dropzone.active {
+      border-color: var(--accent);
+      background: rgba(47, 129, 247, 0.05);
+    }
+
+    .dropzone p {
+      font-size: 0.9rem;
+      color: #8b949e;
+      margin-top: 8px;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .preview-container {
+      position: relative;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      max-height: 320px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+    }
+
+    .preview-img {
+      max-width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #21262d;
+      color: var(--text-heading);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #30363d;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status-banner {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: none;
+    }
+
+    .status-success {
+      display: block;
+      background: var(--success-bg);
+      border: 1px solid var(--success);
+      color: #3fb950;
+    }
+
+    .status-warning {
+      display: block;
+      background: var(--warning-bg);
+      border: 1px solid var(--warning);
+      color: #d29922;
+    }
+
+    .status-error {
+      display: block;
+      background: var(--error-bg);
+      border: 1px solid var(--error);
+      color: #f85149;
+    }
+
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      overflow-x: auto;
+      color: #e6edf3;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 240px;
+    }
+
+    .key { color: #79c0ff; }
+    .string { color: #a5d6ff; }
+    .number { color: #d2a8ff; }
+    .boolean { color: #ff7b72; }
+    .null { color: #ffa657; }
+
+    .loader {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        Dental Lab Form AI Extractor
+        <span class="badge">Google Gemini AI</span>
+      </h1>
+      <span style="font-size:0.85rem; color:#8b949e;" id="rateLimitInfo">Rate Limit: 20 req / 15m</span>
+    </header>
+
+    <div class="grid">
+      <!-- Input Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>Upload Form Image</span>
+          <button class="btn" id="loadExampleBtn" type="button">Use Example Form</button>
+        </div>
+
+        <div class="dropzone" id="dropzone">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #8b949e;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p><strong>Click to browse</strong> or drag & drop dental form image</p>
+          <p style="font-size:0.75rem;">Supports JPG, PNG, WebP (Max 10MB)</p>
+          <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/png,image/webp">
+        </div>
+
+        <div class="preview-container" id="previewContainer" style="display: none;">
+          <img id="previewImg" class="preview-img" alt="Dental form preview">
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" id="extractBtn" style="flex:1;" disabled>
+            <span id="btnText">Extract Information</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Output Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>Extracted JSON Result</span>
+          <span id="httpStatusBadge" style="font-size:0.8rem; font-weight:500;"></span>
+        </div>
+
+        <div id="statusBanner" class="status-banner"></div>
+
+        <pre id="jsonOutput">{
+  "status": "idle",
+  "message": "Upload a dental lab form image and click Extract."
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImg = document.getElementById('previewImg');
+    const extractBtn = document.getElementById('extractBtn');
+    const btnText = document.getElementById('btnText');
+    const loadExampleBtn = document.getElementById('loadExampleBtn');
+    const jsonOutput = document.getElementById('jsonOutput');
+    const statusBanner = document.getElementById('statusBanner');
+    const httpStatusBadge = document.getElementById('httpStatusBadge');
+    const rateLimitInfo = document.getElementById('rateLimitInfo');
+
+    let selectedFile = null;
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('active');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('active'));
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('active');
+      if (e.dataTransfer.files.length) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    loadExampleBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/example.jpg');
+        if (!response.ok) throw new Error('Example image not found on server.');
+        const blob = await response.blob();
+        const file = new File([blob], 'example.jpg', { type: 'image/jpeg' });
+        handleFileSelect(file);
+      } catch (err) {
+        showStatus('error', err.message);
+      }
+    });
+
+    function handleFileSelect(file) {
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        previewContainer.style.display = 'flex';
+        extractBtn.disabled = false;
+      };
+      reader.readAsDataURL(file);
+      hideStatus();
+    }
+
+    extractBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+
+      setLoading(true);
+      hideStatus();
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const res = await fetch('/api/extract', {
+          method: 'POST',
+          body: formData
+        });
+
+        // Capture RateLimit headers
+        const remaining = res.headers.get('RateLimit-Remaining');
+        const limit = res.headers.get('RateLimit-Limit');
+        if (remaining !== null && limit !== null) {
+          rateLimitInfo.textContent = `Rate Limit: ${remaining}/${limit} remaining`;
+        }
+
+        const data = await res.json();
+
+        httpStatusBadge.textContent = `${res.status} ${res.statusText}`;
+        httpStatusBadge.style.color = res.ok ? '#3fb950' : (res.status === 422 ? '#d29922' : '#f85149');
+
+        if (res.ok) {
+          showStatus('success', 'Form extracted successfully!');
+          jsonOutput.innerHTML = highlightJSON(data);
+        } else if (res.status === 422) {
+          showStatus('warning', `Unprocessable Form: ${data.unreadableReason || data.message}`);
+          jsonOutput.innerHTML = highlightJSON(data);
+        } else if (res.status === 429) {
+          showStatus('error', `Rate Limit Exceeded: ${data.message}`);
+          jsonOutput.innerHTML = highlightJSON(data);
+        } else {
+          showStatus('error', data.message || 'Failed to process request.');
+          jsonOutput.innerHTML = highlightJSON(data);
+        }
+      } catch (err) {
+        showStatus('error', `Network Error: ${err.message}`);
+        jsonOutput.textContent = JSON.stringify({ error: err.message }, null, 2);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    function setLoading(isLoading) {
+      extractBtn.disabled = isLoading;
+      if (isLoading) {
+        btnText.innerHTML = '<span class="loader"></span> Processing with Gemini...';
+      } else {
+        btnText.textContent = 'Extract Information';
+      }
+    }
+
+    function showStatus(type, msg) {
+      statusBanner.className = `status-banner status-${type}`;
+      statusBanner.textContent = msg;
+    }
+
+    function hideStatus() {
+      statusBanner.className = 'status-banner';
+      statusBanner.style.display = 'none';
+    }
+
+    function highlightJSON(obj) {
+      const json = JSON.stringify(obj, null, 2);
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'key';
+          } else {
+            cls = 'string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+        } else if (/null/.test(match)) {
+          cls = 'null';
+        }
+        return `<span class="${cls}">${match}</span>`;
+      });
+    }
+  </script>
+</body>
+</html>
